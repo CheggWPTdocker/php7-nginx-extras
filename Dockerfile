@@ -25,6 +25,7 @@ RUN	apk add \
 	--virtual .php7_package \
 		mysql-client \
 		php7 \
+		php7-apcu \
 		php7-bcmath \
 		php7-bz2 \
 		php7-ctype \
@@ -39,6 +40,7 @@ RUN	apk add \
 		php7-intl \
 		php7-json \
 		php7-mbstring \
+		php7-memcached \
 		php7-mcrypt \
 		php7-mysqli \
 		php7-openssl \
@@ -48,6 +50,7 @@ RUN	apk add \
 		php7-pdo_pgsql \
 		php7-pdo_sqlite \
 		php7-phar \
+		php7-redis \
 		php7-soap \
 		php7-sqlite3 \
 		php7-session \
@@ -65,7 +68,6 @@ RUN apk add \
 		pcre-dev \
 		libmemcached-dev \
 		zlib-dev \
-		hiredis-dev \
 		php7-dev
 
 # cleanup apk cache and update certificates
@@ -104,15 +106,6 @@ RUN rm -rf /etc/nginx/conf.d/default.conf && \
 # BUILD PHP Extensions
 #
 
-# Build & install phpiredis
-RUN cd /tmp && \
-	git clone https://github.com/nrk/phpiredis.git phpiredis && \
-	cd phpiredis && \
-	phpize && \
-	./configure && \
-	make && make install && \
-	echo 'extension=phpiredis.so' > "${php_ini_dir}/33_phpiredis.ini"
-
 # Build & install ext/tideways & Tideways.php
 RUN cd /tmp && \
 	curl -L "${tideways_dl}/php-profiler-extension/archive/v${tideways_ext_version}.zip" \
@@ -127,28 +120,37 @@ RUN cd /tmp && \
 	--output "$(php-config --extension-dir)/Tideways.php" && \
     ls -l "$(php-config --extension-dir)/Tideways.php"
 
-#
+
+# Build & install phpiredis
+# RUN cd /tmp && \
+#	git clone https://github.com/nrk/phpiredis.git phpiredis && \
+#	cd phpiredis && \
+#	phpize && \
+#	./configure && \
+#	make && make install && \
+#	echo 'extension=phpiredis.so' > "${php_ini_dir}/33_phpiredis.ini"
+
 # Build & install php7_memcache
-RUN cd /tmp && \
-	curl -fsSL 'https://github.com/websupport-sk/pecl-memcache/archive/NON_BLOCKING_IO_php7.zip' \
-    --output /tmp/memcache.zip && \
-	unzip memcache.zip && \
-	cd /tmp/pecl-memcache-NON_BLOCKING_IO_php7 && \
-	phpize && \
-	./configure --enable-memcache && \
-	make && make install && \
-	echo 'extension=memcache.so' > "${php_ini_dir}/35_memcache.ini"
+# RUN cd /tmp && \
+#	curl -fsSL 'https://github.com/websupport-sk/pecl-memcache/archive/NON_BLOCKING_IO_php7.zip' \
+#	--output /tmp/memcache.zip && \
+#	unzip memcache.zip && \
+#	cd /tmp/pecl-memcache-NON_BLOCKING_IO_php7 && \
+#	phpize && \
+#	./configure --enable-memcache && \
+#	make && make install && \
+#	echo 'extension=memcache.so' > "${php_ini_dir}/35_memcache.ini"
 
 # Build & install php7_apcu
-RUN cd /tmp && \
-	curl -fsSL 'http://pecl.php.net/get/apcu-5.1.8.tgz' \
-    --output /tmp/apcu.tgz && \
-	tar -zxvf apcu.tgz && \
-	cd /tmp/apcu-5.1.8 && \
-	phpize && \
-	./configure --enable-memcache && \
-	make && make install && \
-	echo 'extension=apcu.so' > "${php_ini_dir}/35_apcu.ini"
+# RUN cd /tmp && \
+#	curl -fsSL 'http://pecl.php.net/get/apcu-5.1.8.tgz' \
+#	--output /tmp/apcu.tgz && \
+#	tar -zxvf apcu.tgz && \
+#	cd /tmp/apcu-5.1.8 && \
+#	phpize && \
+#	./configure --enable-memcache && \
+#	make && make install && \
+#	echo 'extension=apcu.so' > "${php_ini_dir}/35_apcu.ini"
 
 # report info
 RUN php -m && php --ini
